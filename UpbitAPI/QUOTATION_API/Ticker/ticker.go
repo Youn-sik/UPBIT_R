@@ -3,7 +3,6 @@ package Ticker
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"upbit/Logger"
@@ -13,7 +12,6 @@ func (*Ticker) GetTicker(markets []string) ([]TickerInfo, string) {
 	var tickerInfo []TickerInfo
 
 	marketStr := setTickerMarketArrToStr(markets)
-	log.Println(marketStr)
 
 	url := "https://api.upbit.com/v1/ticker?markets=" + marketStr
 

@@ -59,3 +59,13 @@ func setWeekMonthCandleInputToParameterType(getWeekCandleInputType GetWeekMonthC
 
 	return getWeekMonthCandleInputParameterType
 }
+
+func (c MinCandleInfo) GetCandleInfo() (string, float64, float64, float64, float64, int) {
+	return c.Market, c.OpeningPrice, c.HighPrice, c.LowPrice, c.TradePrice, c.Timestamp
+}
+func (c DayCandleInfo) GetCandleInfo() (string, float64, float64, float64, float64, int) {
+	return c.Market, c.OpeningPrice, c.HighPrice, c.LowPrice, c.TradePrice, c.Timestamp
+}
+func (c WeekMonthCandleInfo) GetCandleInfo() (string, float64, float64, float64, float64, int) {
+	return c.Market, c.OpeningPrice, c.HighPrice, c.LowPrice, c.TradePrice, c.Timestamp
+}

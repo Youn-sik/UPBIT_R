@@ -9,10 +9,10 @@ type TickerInfo struct {
 	TradeDateKST       string  `json:"trade_date_kst"`  // 최근 거래 일자(KST)
 	TradeTimeKST       string  `json:"trade_time_kst"`  // 최근 거래 시각(KST)
 	TradeTimestamp     int     `json:"trade_timestamp"` // 최근 거래 일시(UTC)
-	OpeningPrice       int     `json:"opening_price"`
-	HighPrice          int     `json:"high_price"`
-	LowPrice           int     `json:"low_price"`
-	TradePrice         int     `json:"trade_price"`           // 종가(현재가)
+	OpeningPrice       float64 `json:"opening_price"`
+	HighPrice          float64 `json:"high_price"`
+	LowPrice           float64 `json:"low_price"`
+	TradePrice         float64 `json:"trade_price"`           // 종가(현재가)
 	PrevClosingPrice   float64 `json:"prev_closing_price"`    // 전일 종가
 	Change             string  `json:"change"`                // EVEN:보합, RISE:상승, FALL:하락 (전일 종가 대비)
 	ChangePrice        float64 `json:"change_price"`          // 변화액의 절대값 (전일 종가 대비)

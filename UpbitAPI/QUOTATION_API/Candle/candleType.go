@@ -2,6 +2,11 @@ package Candle
 
 type Candle struct{}
 
+type CandleTypeGeneric interface {
+	MinCandleInfo | DayCandleInfo | WeekMonthCandleInfo
+	GetCandleInfo() (string, float64, float64, float64, float64, int)
+}
+
 type GetMinCandleInputType struct {
 	MinUnit int
 	Market  string
