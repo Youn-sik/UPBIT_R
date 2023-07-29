@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"time"
+	B_bot "upbit/B-bot"
 	"upbit/Global"
 	"upbit/Logger"
 	"upbit/UpbitAPI/QUOTATION_API/Candle"
@@ -11,7 +12,7 @@ import (
 )
 
 func (a *A_botType) run() {
-	var chartDataForm []ChartDataForm
+	var chartDataForm []B_bot.ChartDataForm
 	var errStr string
 
 	switch a.candleType {
@@ -53,6 +54,7 @@ func (a *A_botType) run() {
 	// B-bot 에게 제공할 데이터 형식으로 변환을 완료 하였으니,
 	// 아래에서 B-bot 에게 해당 데이터를 넘겨준다.
 	// B-bot 에게 데이터 넘겨주는 코드
+	a.sendChartDataToBbot()
 
 	// ---
 	// candleInfo 를 가져오고 난 후 지정한 주기마다 interval 을 돌면서 현재 호가 정보(중 현재가)를 불러온다.
@@ -76,6 +78,8 @@ func (a *A_botType) setDefaultConfig() {
 	a.candleType = "minute"
 	a.candleCount = 200
 	a.candleUnit = 5
+
+	a.setBbot()
 }
 
 func (a *A_botType) setConfig(interval int, marketName, candleType string, candleCount, candleUnit int) {
@@ -84,6 +88,14 @@ func (a *A_botType) setConfig(interval int, marketName, candleType string, candl
 	a.candleType = candleType
 	a.candleCount = candleCount
 	a.candleUnit = candleUnit
+
+	a.setBbot()
+}
+
+func (a *A_botType) setBbot() {
+	bBot := B_bot.NewBot()
+	bBot.Run()
+	a.bBot = bBot
 }
 
 func getMinCandleInput(marketName string, candleCount, candleUnit int) Candle.GetMinCandleInputType {
@@ -135,8 +147,8 @@ func (a *A_botType) runIntervalTickerRequest(ch chan Ticker.TickerInfo) {
 func (a *A_botType) getIntervalTickerResponse(ch chan Ticker.TickerInfo) {
 	for tick := range ch {
 		// log.Printf("%+v", tick)
-		chartDataForm := convertTickTypeToAbotDataForm(tick)
-		log.Printf("%+v", chartDataForm)
+		a.chartData = convertTickTypeToAbotDataForm(tick)
+		//log.Printf("%+v", chartDataForm)
 
 		// 아래 이 함수를 쓰면 기존에 실행 시 저장되는
 		// 지정한 단위의 캔들 정보에 현재 틱 정보를 넣는건데,
@@ -145,18 +157,18 @@ func (a *A_botType) getIntervalTickerResponse(ch chan Ticker.TickerInfo) {
 		// a.addChartData()
 		// ---
 		// B-bot 에게 데이터 넘겨주는 코드
-
+		a.sendChartDataToBbot()
 	}
 }
 
-func convertCandleTypeToAbotDataForm[T Candle.CandleTypeGeneric](candle []T) []ChartDataForm {
-	var chartDataForm []ChartDataForm
+func convertCandleTypeToAbotDataForm[T Candle.CandleTypeGeneric](candle []T) []B_bot.ChartDataForm {
+	var chartDataForm []B_bot.ChartDataForm
 
 	// 위 객체의 timestampKST 변수에 string 형 한국 시간이라서
 	// candle 패키지에서 받아온 timestamp 를 변환해 주기 위해 아래 함수를 사용해야한다.
 	// Global.ConverTimestampTo
 	for _, val := range candle {
-		var cdf ChartDataForm
+		var cdf B_bot.ChartDataForm
 		// log.Printf("%+v", val)
 		market, openingPrice, highPrice, lowPrice, tradePrice, timestamp := val.GetCandleInfo()
 		timeKST := Global.ConvertTimestampToKST(timestamp)
@@ -174,8 +186,8 @@ func convertCandleTypeToAbotDataForm[T Candle.CandleTypeGeneric](candle []T) []C
 	return chartDataForm
 }
 
-func convertTickTypeToAbotDataForm(tick Ticker.TickerInfo) []ChartDataForm {
-	var cdf ChartDataForm
+func convertTickTypeToAbotDataForm(tick Ticker.TickerInfo) []B_bot.ChartDataForm {
+	var cdf B_bot.ChartDataForm
 
 	timeKST := Global.ConvertTimestampToKST(tick.Timestamp)
 	cdf.Market = tick.Market
@@ -185,9 +197,15 @@ func convertTickTypeToAbotDataForm(tick Ticker.TickerInfo) []ChartDataForm {
 	cdf.TradePrice = tick.TradePrice
 	cdf.TimeKST = timeKST
 
-	return []ChartDataForm{cdf}
+	return []B_bot.ChartDataForm{cdf}
 }
 
-func (a *A_botType) addChartData(chartDataForm []ChartDataForm) {
+func (a *A_botType) addChartData(chartDataForm []B_bot.ChartDataForm) {
 	a.chartData = append(chartDataForm)
+}
+
+func (a *A_botType) sendChartDataToBbot() {
+	// 해당 객체 내의 B-bot 의 채널로 전송
+	log.Println("sending data from A-bot")
+	a.bBot.B_channel <- a.chartData
 }
