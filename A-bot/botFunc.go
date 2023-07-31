@@ -12,7 +12,7 @@ import (
 )
 
 func (a *A_botType) run() {
-	var chartDataForm []B_bot.ChartDataForm
+	var chartDataForm []Global.ChartDataForm
 	var errStr string
 
 	switch a.candleType {
@@ -161,14 +161,14 @@ func (a *A_botType) getIntervalTickerResponse(ch chan Ticker.TickerInfo) {
 	}
 }
 
-func convertCandleTypeToAbotDataForm[T Candle.CandleTypeGeneric](candle []T) []B_bot.ChartDataForm {
-	var chartDataForm []B_bot.ChartDataForm
+func convertCandleTypeToAbotDataForm[T Candle.CandleTypeGeneric](candle []T) []Global.ChartDataForm {
+	var chartDataForm []Global.ChartDataForm
 
 	// 위 객체의 timestampKST 변수에 string 형 한국 시간이라서
 	// candle 패키지에서 받아온 timestamp 를 변환해 주기 위해 아래 함수를 사용해야한다.
 	// Global.ConverTimestampTo
 	for _, val := range candle {
-		var cdf B_bot.ChartDataForm
+		var cdf Global.ChartDataForm
 		// log.Printf("%+v", val)
 		market, openingPrice, highPrice, lowPrice, tradePrice, timestamp := val.GetCandleInfo()
 		timeKST := Global.ConvertTimestampToKST(timestamp)
@@ -186,8 +186,8 @@ func convertCandleTypeToAbotDataForm[T Candle.CandleTypeGeneric](candle []T) []B
 	return chartDataForm
 }
 
-func convertTickTypeToAbotDataForm(tick Ticker.TickerInfo) []B_bot.ChartDataForm {
-	var cdf B_bot.ChartDataForm
+func convertTickTypeToAbotDataForm(tick Ticker.TickerInfo) []Global.ChartDataForm {
+	var cdf Global.ChartDataForm
 
 	timeKST := Global.ConvertTimestampToKST(tick.Timestamp)
 	cdf.Market = tick.Market
@@ -197,10 +197,10 @@ func convertTickTypeToAbotDataForm(tick Ticker.TickerInfo) []B_bot.ChartDataForm
 	cdf.TradePrice = tick.TradePrice
 	cdf.TimeKST = timeKST
 
-	return []B_bot.ChartDataForm{cdf}
+	return []Global.ChartDataForm{cdf}
 }
 
-func (a *A_botType) addChartData(chartDataForm []B_bot.ChartDataForm) {
+func (a *A_botType) addChartData(chartDataForm []Global.ChartDataForm) {
 	a.chartData = append(chartDataForm)
 }
 

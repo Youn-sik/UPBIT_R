@@ -2,6 +2,7 @@ package A_bot
 
 import (
 	B_bot "upbit/B-bot"
+	"upbit/Global"
 )
 
 type A_botType struct {
@@ -12,7 +13,7 @@ type A_botType struct {
 	candleUnit         int    // only minute candel -> 1,3,5,15,10,30,60,240
 
 	// A-bot 에서 가공한 데이터
-	chartData []B_bot.ChartDataForm
+	chartData []Global.ChartDataForm
 
 	bBot B_bot.B_botType
 
