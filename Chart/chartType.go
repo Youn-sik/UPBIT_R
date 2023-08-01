@@ -1,5 +1,7 @@
 package Chart
 
+import "upbit/Global"
+
 type ChartWallet struct { // 하나의 차트 알고리즘에서 사용할 금액 정보
 	TotalAmount  float64 // 투자 총 금액 (해당 봇의 해당 차트 지정 건)
 	CurrencyType string  // 투자 금액 화폐 종류
@@ -30,8 +32,9 @@ type FibonacciRetracement_MACD_type struct {
 	fourthLevel float64 // 61.8% Level
 	fifthLevel  float64 // 100% Level
 
-	MACDInputValues []float64 // MACD input value
-	macd            []float64 // MACD value
-	signal          []float64 // MACD Signal value
-	macdHistogram   []float64 // MACD Histogram value
+	chartData       []Global.ChartDataForm // chartData
+	MACDInputValues []float64              // MACD input value
+	macd            []float64              // MACD value
+	signal          []float64              // MACD Signal value
+	macdHistogram   []float64              // MACD Histogram value
 }

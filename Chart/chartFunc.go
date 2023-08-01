@@ -4,11 +4,12 @@ import (
 	"log"
 	"time"
 	"upbit/Global"
+	"upbit/Logger"
 
 	"github.com/markcheno/go-talib"
 )
 
-func (f *FibonacciRetracement_MACD_type) getFibonacciRetracementMACD(chartDataArr []Global.ChartDataForm) {
+func (f *FibonacciRetracement_MACD_type) getFibonacciRetracementMACD() {
 	// wallet 상세 세팅
 	ntime := time.Now().Format("2006-01-02T15:04:05")
 	f.wallet.uptimestamp = ntime
@@ -20,7 +21,7 @@ func (f *FibonacciRetracement_MACD_type) getFibonacciRetracementMACD(chartDataAr
 	f.maxPrice = 0.0              // 최고가 비교 값
 	f.minPrice = 99999999999999.0 // 최저가 비교 값
 
-	for _, chart := range chartDataArr {
+	for _, chart := range f.chartData {
 		op := chart.OpeningPrice
 		// MACD를 위한 데이터를 초기화 해 준다.
 		f.MACDInputValues = append(f.MACDInputValues, op)
@@ -92,11 +93,8 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 	upperLevel, lowerLevel := f.getLevel(nowPrice)
 
 	// 아래 시그널 파악 타이밍을 어떻게 잡을지 고민이다.
-	// 기존 데이터의 가장 최근 값을 가지고 판단하여, 현재 가격으로 구매를 신청해야하는지 ? -> 우선 해당 방법으로 진행 (보다 쉬움)
-	// 기존 데이터 + 현재 데이터 값을 가지고 판단하여, 현재 가격으로 구매를 신청해야하는지 ?
-	lastMACDIndex := len(f.macd) - 1
-	lastSignalIndex := len(f.signal) - 1
-	if f.signal[lastSignalIndex] < f.macd[lastMACDIndex] && f.wallet.flag == true { // -> 여기서 bot C 에게 이벤트 전송해야한다.
+	// 0번 인덱스가 가장 최근의 데이터
+	if f.signal[0] < f.macd[0] && f.wallet.flag == true { // -> 여기서 bot C 에게 이벤트 전송해야한다.
 		// 골든 시그널
 		// MACD 라인이 Signal 라인을 넘게되면 buy signal 을 생성한다.
 		// 이 방식은 한 개를 사면 산 것을 팔 때까지 다시 못 산다.
@@ -110,7 +108,7 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		f.wallet.currentAmount -= nowPrice
 		f.wallet.investAmount += nowPrice
 
-	} else if f.signal[lastSignalIndex] > f.macd[lastMACDIndex] && f.wallet.flag == false { // -> 여기서 bot C 에게 이벤트 전송해야한다.
+	} else if f.signal[0] > f.macd[0] && f.wallet.flag == false { // -> 여기서 bot C 에게 이벤트 전송해야한다.
 		// } else if signal[idx] > macd[idx] && flag == false && price >= lastBuyPrice { // 해당 조건문은 이익이 나지 않으면 팔지 않는 조건문이다.
 		// 데드 시그널
 
@@ -155,5 +153,32 @@ func (f *FibonacciRetracement_MACD_type) getLevel(price float64) (float64, float
 		return f.thirdLevel, f.fourthLevel
 	} else {
 		return f.fourthLevel, f.fifthLevel
+	}
+}
+
+// 기본 정보 수집 데이터의 period 가 요청한 시기의 시간 (인덱스0) 이후 period 마다로 데이터가 와서 우짜지
+func (f *FibonacciRetracement_MACD_type) checkChartDataAdd(chartData Global.ChartDataForm) {
+	lastTimestamp1 := f.chartData[0].TimeKST // 마지막 정보의 수집 시간 정보를 가져온다. (하나 더 전. 왜냐면 제일 마지막 건 요청한 시간으로 들어온다)
+	lastTimestamp2 := f.chartData[1].TimeKST // 마지막의 이전 정보의 수집 시간 정보를 가져온다. (하나 더 전. 왜냐면 제일 마지막 건 요청한 시간으로 들어온다)
+
+	lt1, err := time.Parse("2006-01-02T15:04:05", lastTimestamp1)   // 기존 수집 데이터의 timestamp 를 time 형태로 변환
+	lt2, err := time.Parse("2006-01-02T15:04:05", lastTimestamp2)   // 기존 수집 데이터의 timestamp 를 time 형태로 변환
+	nt, err := time.Parse("2006-01-02T15:04:05", chartData.TimeKST) // 틱 정보의 timestamp 를 time 형태로 변환
+	if err != nil {
+		Logger.PrintErrorLogLevel2(err)
+		return
+	}
+
+	existingPeriod := lt1.Sub(lt2) // 기존 수집 데이터의 주기를 구한다.
+	nowPeriod := nt.Sub(lt1)
+	// if nowPeriod
+
+	log.Println(existingPeriod)
+	log.Println(nowPeriod)
+	if existingPeriod <= nowPeriod { // 기본 수집 데이터의 시간 단위보다 같거나 이후의 데이터인 경우 알고리즘 데이터에 반영한다.
+		log.Println("yy")
+		// f.chartData = append(f.chartData, chartData) // append 가 아니라 prepend 가 되어야 한다.
+		f.chartData = append([]Global.ChartDataForm{chartData}, f.chartData...)
+		f.getFibonacciRetracementMACD()
 	}
 }

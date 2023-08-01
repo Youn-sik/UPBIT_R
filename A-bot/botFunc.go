@@ -213,5 +213,12 @@ func (a *A_botType) addChartData(chartDataForm []Global.ChartDataForm) {
 func (a *A_botType) sendChartDataToBbot() {
 	// 해당 객체 내의 B-bot 의 채널로 전송
 	log.Println("sending data from A-bot")
-	a.bBot.B_channel <- a.chartData
+	if len(a.chartData) > 1 {
+		// 가장 최초의 기본 데이터를 넣는 경우에,
+		// 가장 최근의 데이터는 요청 단위를 무시하고 현재 시간의 틱 데이터로 수집되기 때문에 분리해서 전송
+		a.bBot.B_channel <- a.chartData[1:] // 가장 최근의 데이터를 제외하고 전송
+		a.bBot.B_channel <- a.chartData[:1] // 가장 최근의 데이터는 틱 데이터이므로 분리해서 전송
+	} else {
+		a.bBot.B_channel <- a.chartData
+	}
 }
