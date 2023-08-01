@@ -1,12 +1,20 @@
 package Chart
 
 import (
+	"log"
+	"time"
 	"upbit/Global"
 
 	"github.com/markcheno/go-talib"
 )
 
-func (f *fibonacciRetracement_MACD_type) getFibonacciRetracementMACD(chartDataArr []Global.ChartDataForm) {
+func (f *FibonacciRetracement_MACD_type) getFibonacciRetracementMACD(chartDataArr []Global.ChartDataForm) {
+	// wallet 상세 세팅
+	ntime := time.Now().Format("2006-01-02T15:04:05")
+	f.wallet.uptimestamp = ntime
+	f.wallet.timestamp = ntime
+	f.wallet.currentAmount = f.wallet.TotalAmount // 최초 전체 금액 = 현재 금액(투자하지 않은)
+
 	// 1. 분석하는 기간의 주식 종가 최고가와 최저가 간의 차를 구함
 	// 2. 차에서 각 레벨에 해당하는 퍼센티지를 곱하고 이를 최고가에서 뺌
 	f.maxPrice = 0.0              // 최고가 비교 값
@@ -72,7 +80,7 @@ func (f *fibonacciRetracement_MACD_type) getFibonacciRetracementMACD(chartDataAr
 	*/
 }
 
-func (f *fibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData Global.ChartDataForm) {
+func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData Global.ChartDataForm) {
 	f.wallet.flag = true        // true = 매수 Flag, false = 매도 Flag
 	f.wallet.lastBuyPrice = 0.0 // 매도 시 매수 한 금액과 비교하기 위한 변수
 
@@ -100,6 +108,7 @@ func (f *fibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		*/
 		f.wallet.flag = false
 		f.wallet.currentAmount -= nowPrice
+		f.wallet.investAmount += nowPrice
 
 	} else if f.signal[lastSignalIndex] > f.macd[lastMACDIndex] && f.wallet.flag == false { // -> 여기서 bot C 에게 이벤트 전송해야한다.
 		// } else if signal[idx] > macd[idx] && flag == false && price >= lastBuyPrice { // 해당 조건문은 이익이 나지 않으면 팔지 않는 조건문이다.
@@ -111,6 +120,7 @@ func (f *fibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		*/
 		f.wallet.flag = true
 		f.wallet.currentAmount += nowPrice
+		f.wallet.investAmount -= nowPrice
 
 	} else if (f.wallet.lastBuyPrice >= upperLevel || f.wallet.lastBuyPrice <= lowerLevel) && f.wallet.flag == false { // -> 여기서 bot C 에게 이벤트 전송해야한다.
 		// 데드 시그널 뿐만 아니라 피보나치 레벨에 도달한 경우 판매한다.
@@ -123,13 +133,18 @@ func (f *fibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		*/
 		f.wallet.flag = true
 		f.wallet.currentAmount += nowPrice
+		f.wallet.investAmount -= nowPrice
 	}
+
+	ntime := time.Now().Format("2006-01-02T15:04:05")
+	f.wallet.uptimestamp = ntime
+	log.Printf("wallet info: %+v", f.wallet)
 }
 
 // 이 함수는 현재 주식의 종가(오픈가)가 Fibonacci Retracement의 어느 레벨이 있는지를 확인한다.
 // 현재 가격(오픈가, 종가)가 특정 레벨보다 높거나 같으면 그 레벨과 바로 아래의 하위 레벨을 불러온다.
 // 해당 두 레벨을 통해 매도/매도 시점으로 비교가 가능하다.
-func (f *fibonacciRetracement_MACD_type) getLevel(price float64) (float64, float64) {
+func (f *FibonacciRetracement_MACD_type) getLevel(price float64) (float64, float64) {
 	if price >= f.firstLevel {
 		return f.zerothLevel, f.firstLevel
 	} else if price >= f.secondLevel {

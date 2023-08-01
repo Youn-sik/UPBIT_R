@@ -1,8 +1,8 @@
 package Chart
 
 type ChartWallet struct { // 하나의 차트 알고리즘에서 사용할 금액 정보
-	totalAmount  float64 // 투자 총 금액 (해당 봇의 해당 차트 지정 건)
-	currencyType string  // 투자 금액 화폐 종류
+	TotalAmount  float64 // 투자 총 금액 (해당 봇의 해당 차트 지정 건)
+	CurrencyType string  // 투자 금액 화폐 종류
 
 	investAmount  float64 // 투자 중 금액
 	currentAmount float64 // 미 투자 금액
@@ -15,7 +15,7 @@ type ChartWallet struct { // 하나의 차트 알고리즘에서 사용할 금�
 	uptimestamp string // 최근 투자 일시
 }
 
-type fibonacciRetracement_MACD_type struct {
+type FibonacciRetracement_MACD_type struct {
 	wallet ChartWallet
 
 	maxPrice float64 // 종가 최대 값

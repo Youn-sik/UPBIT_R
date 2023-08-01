@@ -73,23 +73,29 @@ func (a *A_botType) run() {
 }
 
 func (a *A_botType) setDefaultConfig() {
+	a.setBbot()
+
 	a.collectionInterval = 10
 	a.marketName = "KRW-ETH"
 	a.candleType = "minute"
 	a.candleCount = 200
 	a.candleUnit = 5
 
-	a.setBbot()
+	a.bBot.Wallet.CurrencyType = "KRW"
+	a.bBot.Wallet.TotalAmount = 1000000 // 백만원
 }
 
-func (a *A_botType) setConfig(interval int, marketName, candleType string, candleCount, candleUnit int) {
+func (a *A_botType) setConfig(interval int, marketName, candleType string, candleCount, candleUnit int, currencyType string, totalAmount float64) {
+	a.setBbot()
+
 	a.collectionInterval = interval
 	a.marketName = marketName
 	a.candleType = candleType
 	a.candleCount = candleCount
 	a.candleUnit = candleUnit
 
-	a.setBbot()
+	a.bBot.Wallet.CurrencyType = currencyType
+	a.bBot.Wallet.TotalAmount = totalAmount
 }
 
 func (a *A_botType) setBbot() {

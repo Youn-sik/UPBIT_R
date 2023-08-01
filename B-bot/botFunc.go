@@ -2,6 +2,7 @@ package B_bot
 
 import (
 	"log"
+	"upbit/Chart"
 	"upbit/Global"
 )
 
@@ -16,5 +17,11 @@ func (b *B_botType) getChartDataFromAbot() {
 	for chartData := range b.B_channel {
 		log.Println("receiving data from B-bot")
 		log.Printf("%+v", chartData)
+
+		if len(chartData) != 1 { // 초기 데이터
+			b.chartPointer = Chart.GetFibonacciRetracementMACD(b.Wallet, chartData)
+		} else { // 주기에 따른 틱 실시간 데이터
+			b.chartPointer.FibonacciRetracementMACD(chartData[0])
+		}
 	}
 }

@@ -8,8 +8,8 @@ package B_bot
 // B-bot 내부 채널의 리시버 함수는 B-bot 패키지 내에서 처리하도록 하면 ?
 
 // Create B New Bot
-func NewBot() B_botType {
-	return B_botType{}
+func NewBot() *B_botType {
+	return &B_botType{}
 }
 
 func (b *B_botType) Run() {

@@ -13,14 +13,17 @@ func main() {
 	// aBot1.SetConfig(10, "KRW-BTC", "day", 200, 0)
 	// aBot1.Run()
 
-	aBot2 := A_bot.NewBot()
+	// aBot2 := A_bot.NewBot()
 	// aBot2.SetDefaultConfig()
 	// aBot2.SetConfig(10, "KRW-ETH", "minute", 200, 5)
-	aBot2.SetConfig(10, "KRW-BTC", "day", 200, 0)
+	// aBot2.SetConfig(10, "KRW-BTC", "day", 200, 0)
 	// aBot2.SetConfig(10, "KRW-BTC", "week", 200, 0)
 	// aBot2.SetConfig(10, "KRW-BTC", "month", 200, 0)
+	// aBot2.Run()
 
-	aBot2.Run()
+	testBot := A_bot.NewBot()
+	testBot.SetDefaultConfig()
+	testBot.Run()
 }
 
 // B-bot 이 돌면서 알아야하는 데이터는 이전 데이터(위에서 지정한 주기에 따른 데이터 - 분,일,주,월) + 지정한 주기마다의 실시간 데이터

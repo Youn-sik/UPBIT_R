@@ -6,6 +6,7 @@ import (
 )
 
 type A_botType struct {
+	// 클라이언트 사이드 인터페이스를 통해서 설정 할 필드
 	collectionInterval int
 	marketName         string
 	candleType         string // minute, day, week, month
@@ -15,7 +16,7 @@ type A_botType struct {
 	// A-bot 에서 가공한 데이터
 	chartData []Global.ChartDataForm
 
-	bBot B_bot.B_botType
+	bBot *B_bot.B_botType
 
 	// 외부 객체 또는 다른 bot 에서 A 객체에게 데이터를 제공해야하면 아래 채널 활성화 하여 사용
 	// A_channel chan TYPE

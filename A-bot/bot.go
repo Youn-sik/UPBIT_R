@@ -11,8 +11,8 @@ func (a *A_botType) SetDefaultConfig() {
 }
 
 // Set Configuration With Given Data About Bot
-func (a *A_botType) SetConfig(interval int, marketName, candleType string, candleCount, candleUnit int) {
-	a.setConfig(interval, marketName, candleType, candleCount, candleUnit)
+func (a *A_botType) SetConfig(interval int, marketName, candleType string, candleCount, candleUnit int, currencyType string, totalAmount float64) {
+	a.setConfig(interval, marketName, candleType, candleCount, candleUnit, currencyType, totalAmount)
 }
 
 // Start Job
