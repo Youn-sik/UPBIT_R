@@ -76,7 +76,7 @@ func (a *A_botType) setDefaultConfig() {
 	a.setBbot()
 
 	a.collectionInterval = 10
-	a.marketName = "KRW-ETH"
+	a.marketName = "KRW-XRP"
 	a.candleType = "minute"
 	a.candleCount = 200
 	a.candleUnit = 5

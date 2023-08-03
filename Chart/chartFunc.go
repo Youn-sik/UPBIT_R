@@ -175,6 +175,9 @@ func (f *FibonacciRetracement_MACD_type) checkChartDataAdd(chartData Global.Char
 
 	log.Println(existingPeriod)
 	log.Println(nowPeriod)
+	// 하지만 아래 조건일 경우, 봇을 오래 틀어둠에 따라 기존 수집 데이터의 시간 단위보다 시간 단위가 점점 커지게 된다.
+	// 근본적인 해결 방안은 A-bot 에게로 부터 받아온 데이터를 사용(사용자가 지정한 최초 데이터의 시간 단위)
+
 	if existingPeriod <= nowPeriod { // 기본 수집 데이터의 시간 단위보다 같거나 이후의 데이터인 경우 알고리즘 데이터에 반영한다.
 		log.Println("yy")
 		// f.chartData = append(f.chartData, chartData) // append 가 아니라 prepend 가 되어야 한다.

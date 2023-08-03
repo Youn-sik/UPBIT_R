@@ -1,8 +1,8 @@
 package A_bot
 
 // Create A New Bot
-func NewBot() A_botType {
-	return A_botType{}
+func NewBot() *A_botType {
+	return &A_botType{}
 }
 
 // Set Default Configuration About Bot

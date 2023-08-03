@@ -7,23 +7,21 @@ import (
 func main() {
 	// 실행
 
-	// aBot1 := A_bot.NewBot()
-	// aBot1.SetDefaultConfig()
-	// aBot1.SetConfig(10, "KRW-ETH", "minute", 200, 5)
-	// aBot1.SetConfig(10, "KRW-BTC", "day", 200, 0)
-	// aBot1.Run()
-
-	// aBot2 := A_bot.NewBot()
-	// aBot2.SetDefaultConfig()
-	// aBot2.SetConfig(10, "KRW-ETH", "minute", 200, 5)
-	// aBot2.SetConfig(10, "KRW-BTC", "day", 200, 0)
-	// aBot2.SetConfig(10, "KRW-BTC", "week", 200, 0)
-	// aBot2.SetConfig(10, "KRW-BTC", "month", 200, 0)
-	// aBot2.Run()
-
 	testBot := A_bot.NewBot()
 	testBot.SetDefaultConfig()
-	testBot.Run()
+	go testBot.Run()
+
+	testBot1 := A_bot.NewBot()
+	testBot1.SetConfig(10, "KRW-BTC", "minute", 200, 5, "KRW", 100000000)
+	go testBot1.Run()
+
+	testBot2 := A_bot.NewBot()
+	testBot2.SetConfig(10, "KRW-ETH", "minute", 200, 5, "KRW", 100000000)
+	testBot2.Run()
+
+	// 모든 run method 는 go 고루틴으로 실행 시키고
+	// 클라이언트와 인터페이스가 되는 tcp 서버를 아래에서 실행 시켜두면 된다.
+	// tcp 서버의 func 에서도 봇이 생성되어 실행 될 때, 고루틴으로 Run() 실행.
 }
 
 // B-bot 이 돌면서 알아야하는 데이터는 이전 데이터(위에서 지정한 주기에 따른 데이터 - 분,일,주,월) + 지정한 주기마다의 실시간 데이터
