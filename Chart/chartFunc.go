@@ -104,6 +104,7 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		*/
 		f.wallet.flag = false
 		f.wallet.currentAmount -= nowPrice
+		f.wallet.TotalAmount -= nowPrice
 		f.wallet.investAmount += nowPrice
 
 	} else if f.signal[0] > f.macd[0] && f.wallet.flag == false { // -> 여기서 bot C 에게 이벤트 전송해야한다.
@@ -115,9 +116,10 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		sellList = append(sellList, price)
 		*/
 		f.wallet.flag = true
+		f.wallet.currentAmount += f.wallet.lastBuyPrice
+		f.wallet.TotalAmount += f.wallet.lastBuyPrice
+		f.wallet.investAmount -= f.wallet.lastBuyPrice
 		f.wallet.lastBuyPrice = 0.0
-		f.wallet.currentAmount += nowPrice
-		f.wallet.investAmount -= nowPrice
 
 	} else if (f.wallet.lastBuyPrice >= upperLevel || f.wallet.lastBuyPrice <= lowerLevel) && f.wallet.flag == false { // -> 여기서 bot C 에게 이벤트 전송해야한다.
 		// 데드 시그널 뿐만 아니라 피보나치 레벨에 도달한 경우 판매한다.
@@ -129,9 +131,10 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		sellList = append(sellList, price)
 		*/
 		f.wallet.flag = true
+		f.wallet.currentAmount += f.wallet.lastBuyPrice
+		f.wallet.TotalAmount += f.wallet.lastBuyPrice
+		f.wallet.investAmount -= f.wallet.lastBuyPrice
 		f.wallet.lastBuyPrice = 0.0
-		f.wallet.currentAmount += nowPrice
-		f.wallet.investAmount -= nowPrice
 	}
 
 	ntime := time.Now().Format("2006-01-02T15:04:05")
@@ -338,6 +341,7 @@ func (s *Stochastic_type) runStochastic(chartData Global.ChartDataForm) {
 		*/
 		s.wallet.flag = false
 		s.wallet.currentAmount -= nowPrice
+		s.wallet.TotalAmount -= nowPrice
 		s.wallet.investAmount += nowPrice
 
 	} else if lastKvalueBefore > lastDvalueBefore && lastKvalue < lastDvalue && s.wallet.flag == false && lastKvalue < 80 { // -> 여기서 bot C 에게 이벤트 전송해야한다.
@@ -348,9 +352,10 @@ func (s *Stochastic_type) runStochastic(chartData Global.ChartDataForm) {
 		sellList = append(sellList, price)
 		*/
 		s.wallet.flag = true
+		s.wallet.currentAmount += s.wallet.lastBuyPrice
+		s.wallet.TotalAmount += s.wallet.lastBuyPrice
+		s.wallet.investAmount -= s.wallet.lastBuyPrice
 		s.wallet.lastBuyPrice = 0.0
-		s.wallet.currentAmount += nowPrice
-		s.wallet.investAmount -= nowPrice
 	}
 
 	ntime := time.Now().Format("2006-01-02T15:04:05")
