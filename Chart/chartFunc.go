@@ -82,8 +82,7 @@ func (f *FibonacciRetracement_MACD_type) getFibonacciRetracementMACD() {
 }
 
 func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData Global.ChartDataForm) {
-	f.wallet.flag = true        // true = 매수 Flag, false = 매도 Flag
-	f.wallet.lastBuyPrice = 0.0 // 매도 시 매수 한 금액과 비교하기 위한 변수
+	f.wallet.flag = true // true = 매수 Flag, false = 매도 Flag
 
 	// f 에서 각종 정보를 가지고
 	// 매개 변수의 chartData 를 현재값으로 flag 조정
@@ -117,6 +116,7 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		sellList = append(sellList, price)
 		*/
 		f.wallet.flag = true
+		f.wallet.lastBuyPrice = 0.0
 		f.wallet.currentAmount += nowPrice
 		f.wallet.investAmount -= nowPrice
 
@@ -130,6 +130,7 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		sellList = append(sellList, price)
 		*/
 		f.wallet.flag = true
+		f.wallet.lastBuyPrice = 0.0
 		f.wallet.currentAmount += nowPrice
 		f.wallet.investAmount -= nowPrice
 	}

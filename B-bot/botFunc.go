@@ -20,8 +20,10 @@ func (b *B_botType) getChartDataFromAbot() {
 
 		if len(chartData) != 1 { // 초기 데이터
 			b.chartPointer = Chart.GetFibonacciRetracementMACD(b.Wallet, chartData)
+			// b.chartPointer = Chart.GetStochastic(b.Wallet, chartData)
 		} else { // 주기에 따른 틱 실시간 데이터
 			b.chartPointer.FibonacciRetracementMACD(chartData[0])
+			// b.chartPointer.Stochastic(chartData[0])
 		}
 	}
 }

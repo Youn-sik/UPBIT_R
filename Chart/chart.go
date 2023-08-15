@@ -20,7 +20,9 @@ chart 패키지에서는 B-bot의 ChartData 형식만을 가지고 계산하면 
 func GetFibonacciRetracementMACD(wallet ChartWallet, chartDataArr []Global.ChartDataForm) *FibonacciRetracement_MACD_type {
 	// 계산 값이 담긴 객체의 포인터를 봇에다가 저장해야겠다.
 	frmt := FibonacciRetracement_MACD_type{}
-	frmt.wallet = wallet               // 사용 할 금액 등 정보 기입
+	frmt.wallet = wallet // 사용 할 금액 등 정보 기입
+	frmt.wallet.lastBuyPrice = 0.0
+	frmt.wallet.flag = true
 	frmt.chartData = chartDataArr      // 차트 데이터 객체 내에 저장
 	frmt.getFibonacciRetracementMACD() // 매수/매도 신호를 위한 기본 데이터 세팅
 
