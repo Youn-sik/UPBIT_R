@@ -82,8 +82,6 @@ func (f *FibonacciRetracement_MACD_type) getFibonacciRetracementMACD() {
 }
 
 func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData Global.ChartDataForm) {
-	f.wallet.flag = true // true = 매수 Flag, false = 매도 Flag
-
 	// f 에서 각종 정보를 가지고
 	// 매개 변수의 chartData 를 현재값으로 flag 조정
 
