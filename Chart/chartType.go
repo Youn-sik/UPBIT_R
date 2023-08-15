@@ -38,3 +38,17 @@ type FibonacciRetracement_MACD_type struct {
 	signal          []float64              // MACD Signal value
 	macdHistogram   []float64              // MACD Histogram value
 }
+
+type Stochastic_type struct {
+	wallet ChartWallet
+
+	Krange int
+	Drange int
+
+	chartData           []Global.ChartDataForm // chartData
+	kValueArr           []float64              // Kvalue percent value array
+	dValueArr           []float64              // Dvalue percent value array
+	openingPriceHighArr []float64              // high price into Krange
+	openingPriceLowArr  []float64              // low price into Krange
+	compareArr          []float64              // to get High/Low price into Krange
+}

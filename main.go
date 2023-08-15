@@ -9,15 +9,16 @@ func main() {
 
 	testBot := A_bot.NewBot()
 	testBot.SetDefaultConfig()
-	go testBot.Run()
+	// go testBot.Run()
+	testBot.Run()
 
 	testBot1 := A_bot.NewBot()
-	testBot1.SetConfig(10, "KRW-BTC", "minute", 200, 5, "KRW", 100000000)
-	go testBot1.Run()
+	testBot1.SetConfig(10, "KRW-BTC", "day", 200, 5, "KRW", 100000000)
+	// go testBot1.Run()
 
 	testBot2 := A_bot.NewBot()
-	testBot2.SetConfig(10, "KRW-ETH", "minute", 200, 5, "KRW", 100000000)
-	testBot2.Run()
+	testBot2.SetConfig(10, "KRW-ETH", "day", 200, 5, "KRW", 100000000)
+	// testBot2.Run()
 
 	// 모든 run method 는 go 고루틴으로 실행 시키고
 	// 클라이언트와 인터페이스가 되는 tcp 서버를 아래에서 실행 시켜두면 된다.

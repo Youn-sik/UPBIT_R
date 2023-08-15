@@ -10,8 +10,8 @@ type B_botType struct {
 	Wallet Chart.ChartWallet
 
 	// 차트 정보 포인터 (종류별로 처리 필요)
-	chartPointer *Chart.FibonacciRetracement_MACD_type
-	// chartPointer *Chart.Stochastic_type
+	// chartPointer *Chart.FibonacciRetracement_MACD_type
+	chartPointer *Chart.Stochastic_type
 
 	B_channel chan []Global.ChartDataForm
 }

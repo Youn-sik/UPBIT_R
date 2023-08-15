@@ -2,6 +2,7 @@ package Chart
 
 import (
 	"log"
+	"sort"
 	"time"
 	"upbit/Global"
 	"upbit/Logger"
@@ -183,4 +184,176 @@ func (f *FibonacciRetracement_MACD_type) checkChartDataAdd(chartData Global.Char
 		f.chartData = append([]Global.ChartDataForm{chartData}, f.chartData...)
 		f.getFibonacciRetracementMACD()
 	}
+}
+
+func (s *Stochastic_type) getStochastic() {
+	// wallet 상세 세팅
+	ntime := time.Now().Format("2006-01-02T15:04:05")
+	s.wallet.uptimestamp = ntime
+	s.wallet.timestamp = ntime
+	s.wallet.currentAmount = s.wallet.TotalAmount // 최초 전체 금액 = 현재 금액(투자하지 않은)
+
+	// 객체에 chartData, wallet, Kvalue/Dvalue 데이터 존재
+	s.compareArr = make([]float64, s.Krange)
+	// 근데 아래역 정렬이 최초 한 번만 되어야하나 ? 이후 추가되는 데이터는 어떻게 ?
+	// 시간 기준 최근게 마지막으로 정렬
+	sort.Slice(s.chartData, func(i, j int) bool {
+		t1, err := time.Parse("2006-01-02T15:04:05", s.chartData[i].TimeKST)
+		if err != nil {
+			log.Println(err)
+		}
+		t2, _ := time.Parse("2006-01-02T15:04:05", s.chartData[j].TimeKST)
+		return t1.Before(t2)
+	})
+
+	for idx, val := range s.chartData {
+		var nowPrice float64 = val.OpeningPrice
+		var kValue, minPrice, maxPrice float64
+
+		// Krange 내에서 최고값, 최저값을 가져온다.
+		s.compareArr, minPrice, maxPrice = setCompareArr(s.compareArr, nowPrice, idx, s.Krange)
+		s.openingPriceHighArr = append(s.openingPriceHighArr, maxPrice)
+		s.openingPriceLowArr = append(s.openingPriceLowArr, minPrice)
+
+		// Kvalue 를 구하려면 해당 날로부터 이전 날의 Krange 만큼의 데이터가 있어야한다.
+		if idx >= s.Krange {
+			// %K = (현재 가격의 폭) / (파동의 전체 폭) * 100(%)
+			kValue = (nowPrice - minPrice) / (maxPrice - minPrice) * 100
+			s.kValueArr = append(s.kValueArr, kValue)
+		} else {
+			s.kValueArr = append(s.kValueArr, 0)
+		}
+	}
+	// Dvalue 는 KvalueArr 의 Drange 만큼의 이평선 값이다.
+	s.dValueArr = movingAverage(s.kValueArr, s.Drange)
+
+	// 시간 기준 최근게 앞으로 정렬
+	sort.Slice(s.chartData, func(i, j int) bool {
+		t2, err := time.Parse("2006-01-02T15:04:05", s.chartData[i].TimeKST)
+		if err != nil {
+			log.Println(err)
+		}
+		t1, _ := time.Parse("2006-01-02T15:04:05", s.chartData[j].TimeKST)
+		return t1.Before(t2)
+	})
+}
+
+func setCompareArr(compareArr []float64, nowPrice float64, idx, Krange int) ([]float64, float64, float64) {
+	var maxPrice, minPrice float64 = 0, 999999999999 // 9천억
+
+	if idx == 0 {
+		for i := 0; i < len(compareArr); i++ {
+			compareArr[i] = nowPrice
+		}
+	} else {
+		compareArr[idx%Krange] = nowPrice
+	}
+
+	for _, val := range compareArr {
+		if val <= minPrice {
+			minPrice = val
+		}
+		if val >= maxPrice {
+			maxPrice = val
+		}
+	}
+
+	return compareArr, minPrice, maxPrice
+}
+
+func movingAverage(data []float64, windowSize int) []float64 {
+	if windowSize > len(data) {
+		windowSize = len(data)
+	}
+
+	var result []float64
+	for idx, _ := range data {
+		if idx < windowSize-1 {
+			result = append(result, 0)
+		} else {
+			var mv float64
+			for ws := windowSize - 1; ws > 0; ws-- { // window size == 5 인 경우 4,3,2,1
+				mv += data[idx-ws]
+			}
+			rst := mv / float64(windowSize)
+			result = append(result, rst)
+		}
+	}
+
+	return result
+}
+
+func (s *Stochastic_type) checkChartDataAdd(chartData Global.ChartDataForm) {
+	lastTimestamp1 := s.chartData[0].TimeKST // 마지막 정보의 수집 시간 정보를 가져온다. (하나 더 전. 왜냐면 제일 마지막 건 요청한 시간으로 들어온다)
+	lastTimestamp2 := s.chartData[1].TimeKST // 마지막의 이전 정보의 수집 시간 정보를 가져온다. (하나 더 전. 왜냐면 제일 마지막 건 요청한 시간으로 들어온다)
+
+	lt1, err := time.Parse("2006-01-02T15:04:05", lastTimestamp1)   // 기존 수집 데이터의 timestamp 를 time 형태로 변환
+	lt2, err := time.Parse("2006-01-02T15:04:05", lastTimestamp2)   // 기존 수집 데이터의 timestamp 를 time 형태로 변환
+	nt, err := time.Parse("2006-01-02T15:04:05", chartData.TimeKST) // 틱 정보의 timestamp 를 time 형태로 변환
+	if err != nil {
+		Logger.PrintErrorLogLevel2(err)
+		return
+	}
+
+	existingPeriod := lt1.Sub(lt2) // 기존 수집 데이터의 주기를 구한다.
+	nowPeriod := nt.Sub(lt1)
+	// if nowPeriod
+
+	log.Println(existingPeriod)
+	log.Println(nowPeriod)
+	// 하지만 아래 조건일 경우, 봇을 오래 틀어둠에 따라 기존 수집 데이터의 시간 단위보다 시간 단위가 점점 커지게 된다.
+	// 근본적인 해결 방안은 A-bot 에게로 부터 받아온 데이터를 사용(사용자가 지정한 최초 데이터의 시간 단위)
+
+	if existingPeriod <= nowPeriod { // 기본 수집 데이터의 시간 단위보다 같거나 이후의 데이터인 경우 알고리즘 데이터에 반영한다.
+		log.Println("yy")
+		// f.chartData = append(f.chartData, chartData) // append 가 아니라 prepend 가 되어야 한다.
+		s.chartData = append([]Global.ChartDataForm{chartData}, s.chartData...)
+		s.getStochastic()
+	}
+}
+
+func (s *Stochastic_type) runStochastic(chartData Global.ChartDataForm) {
+	// s 에서 각종 정보를 가지고
+	// 매개 변수의 chartData 를 현재값으로 flag 조정
+
+	nowPrice := chartData.OpeningPrice
+	// ??? 만약 골든 크로스가 발생했다. 근데 그 정보는 차트 판단 주기가 돌아오기 이전까지
+	// 계속 골든 크로스로 인식할텐데 ? 구매 플래그 때문에 상관 없다 ?
+	//kValue, dValue 는 가장 마지막 인덱스가 최근 데이터이다.
+	// 이 두개 데이터가 교차되는 지점을 알아야한다.
+	lastKvalue := s.kValueArr[len(s.kValueArr)-1]       // kValue 가장 마지막 값
+	lastKvalueBefore := s.kValueArr[len(s.kValueArr)-2] // kValue 가장 마지막의 이전 값
+	lastDvalue := s.dValueArr[len(s.dValueArr)-1]       // dValue 가장 마지막 값
+	lastDvalueBefore := s.dValueArr[len(s.dValueArr)-2] // dValue 가장 마지막의 이전 값
+
+	// 추후에 MACD 추세 그래프까지 적용 필요
+	if lastKvalueBefore < lastDvalueBefore && lastKvalue > lastDvalue && s.wallet.flag == true && lastKvalue > 20 { // -> 여기서 bot C 에게 이벤트 전송해야한다.
+		// 골든 시그널 (20% 초과에서만)
+		// 이 방식은 한 개를 사면 산 것을 팔 때까지 다시 못 산다.
+		s.wallet.lastBuyPrice = nowPrice
+
+		/* -> 아래는 기록 남기는 부분으로 mongodb 에 저장이 필요하다.
+		buyList = append(buyList, price)
+		sellList = append(sellList, 0)
+		*/
+		s.wallet.flag = false
+		s.wallet.currentAmount -= nowPrice
+		s.wallet.investAmount += nowPrice
+
+	} else if lastKvalueBefore > lastDvalueBefore && lastKvalue < lastDvalue && s.wallet.flag == false && lastKvalue < 80 { // -> 여기서 bot C 에게 이벤트 전송해야한다.
+		// 데드 시그널 (80% 미만에서만)
+
+		/* -> 아래는 기록 남기는 부분으로 mongodb 에 저장이 필요하다.
+		buyList = append(buyList, 0)
+		sellList = append(sellList, price)
+		*/
+		s.wallet.flag = true
+		s.wallet.lastBuyPrice = 0.0
+		s.wallet.currentAmount += nowPrice
+		s.wallet.investAmount -= nowPrice
+	}
+
+	ntime := time.Now().Format("2006-01-02T15:04:05")
+	s.wallet.uptimestamp = ntime
+	log.Printf("wallet info: %+v", s.wallet)
 }
