@@ -116,8 +116,8 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		sellList = append(sellList, price)
 		*/
 		f.wallet.flag = true
-		f.wallet.currentAmount += f.wallet.lastBuyPrice
-		f.wallet.TotalAmount += f.wallet.lastBuyPrice
+		f.wallet.currentAmount += nowPrice
+		f.wallet.TotalAmount += nowPrice
 		f.wallet.investAmount -= f.wallet.lastBuyPrice
 		f.wallet.lastBuyPrice = 0.0
 
@@ -131,8 +131,8 @@ func (f *FibonacciRetracement_MACD_type) runFibonacciRetracementMACD(chartData G
 		sellList = append(sellList, price)
 		*/
 		f.wallet.flag = true
-		f.wallet.currentAmount += f.wallet.lastBuyPrice
-		f.wallet.TotalAmount += f.wallet.lastBuyPrice
+		f.wallet.currentAmount += nowPrice
+		f.wallet.TotalAmount += nowPrice
 		f.wallet.investAmount -= f.wallet.lastBuyPrice
 		f.wallet.lastBuyPrice = 0.0
 	}
@@ -352,8 +352,8 @@ func (s *Stochastic_type) runStochastic(chartData Global.ChartDataForm) {
 		sellList = append(sellList, price)
 		*/
 		s.wallet.flag = true
-		s.wallet.currentAmount += s.wallet.lastBuyPrice
-		s.wallet.TotalAmount += s.wallet.lastBuyPrice
+		s.wallet.currentAmount += nowPrice
+		s.wallet.TotalAmount += nowPrice
 		s.wallet.investAmount -= s.wallet.lastBuyPrice
 		s.wallet.lastBuyPrice = 0.0
 	}

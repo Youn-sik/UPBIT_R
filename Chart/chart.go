@@ -64,6 +64,7 @@ func (s *Stochastic_type) Stochastic(chartData Global.ChartDataForm) {
 	// dValueArr 및 kValueArr 는 가장 뒷 쪽 인덱스가 최근 데이터고
 	// chartData 는 가장 앞 인덱스가 최근 데이터이다.
 	// 둘 다 역정렬이 필요 (get)
+	log.Printf("%+v", s)
 	s.checkChartDataAdd(chartData)
 	s.runStochastic(chartData)
 
